@@ -1,0 +1,13 @@
+/target
+**/target
+node_modules
+.next
+.out
+neardev
+*.wasm
+!demo/*.wasm
+.env
+.env.local
+credentials/
+*.keypair.json
+demo/recordings/

@@ -1,0 +1,798 @@
+{
+  "schema_version": "0.4.0",
+  "metadata": {
+    "name": "patron-escrow",
+    "version": "0.1.0",
+    "build": {
+      "compiler": "rustc 1.96.1",
+      "builder": "cargo-near cargo-near-build 0.11.5"
+    },
+    "wasm_hash": "7Cd4kdRSgHtqfoUQJKF6ov1mB7wZbgFc2Xm5xdRtWBMn"
+  },
+  "body": {
+    "functions": [
+      {
+        "name": "attest",
+        "doc": " A supporter records that milestone `index` was delivered. Voting weight is what that\n supporter deposited into this cycle, so the quorum is of the money, not of accounts.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "campaign_id",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "cycle",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "index",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "contract_source_metadata",
+        "kind": "view"
+      },
+      {
+        "name": "create_campaign",
+        "doc": " Creates a campaign and opens cycle 1. Also registers this contract's own account for\n storage on `token`, which must have landed before any supporter's `ft_transfer_call`.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "creator",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            },
+            {
+              "name": "title",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "summary",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "reference_url",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "token",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            },
+            {
+              "name": "milestones",
+              "type_schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/MilestoneSpec"
+                }
+              }
+            },
+            {
+              "name": "contribution_window_sec",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "attestation_window_sec",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "quorum_bps",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint32",
+                "minimum": 0.0
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
+      {
+        "name": "finalize_cycle",
+        "doc": " Anyone may finalize a cycle once every attestation window has closed. This freezes the\n refund denominator so supporters' shares cannot drift as people claim.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "campaign_id",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "cycle",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "ft_on_transfer",
+        "doc": " Deposits arrive as `ft_transfer_call(escrow, amount, memo, \"<campaign_id>:<cycle_id>\")`.\n Anything this contract will not accept is returned to the sender by the token contract.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "sender_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            },
+            {
+              "name": "amount",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "msg",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "$ref": "#/definitions/PromiseOrValueString"
+          }
+        }
+      },
+      {
+        "name": "get_campaign",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "campaign_id",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "$ref": "#/definitions/CampaignView"
+          }
+        }
+      },
+      {
+        "name": "get_cycle",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "campaign_id",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "cycle",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "$ref": "#/definitions/CycleView"
+          }
+        }
+      },
+      {
+        "name": "get_supporter",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "campaign_id",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "cycle",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "supporter",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "$ref": "#/definitions/SupporterView"
+          }
+        }
+      },
+      {
+        "name": "list_campaigns",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "from",
+              "type_schema": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "limit",
+              "type_schema": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          }
+        }
+      },
+      {
+        "name": "new",
+        "kind": "call",
+        "modifiers": [
+          "init"
+        ]
+      },
+      {
+        "name": "on_refund_result",
+        "kind": "call",
+        "modifiers": [
+          "private"
+        ],
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "campaign_id",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "cycle",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "supporter",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            },
+            {
+              "name": "_deposited",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint128",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "amount",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint128",
+                "minimum": 0.0
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "on_release_result",
+        "doc": " Reverts a release whose payout transfer failed, so a creator's unregistered storage can\n never silently burn supporter money.",
+        "kind": "call",
+        "modifiers": [
+          "private"
+        ],
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "campaign_id",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "cycle",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "index",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "amount",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint128",
+                "minimum": 0.0
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "open_next_cycle",
+        "doc": " The creator opens the next cycle once the current one is finalized. Recurring patronage is\n this call repeated, and each cycle's undelivered funds refund independently.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "campaign_id",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
+      {
+        "name": "refund",
+        "doc": " A supporter claims back their pro-rata share of everything the campaign failed to deliver.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "campaign_id",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "cycle",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "withdraw",
+        "doc": " Releases one milestone's tranche to the creator, and only against a supporter quorum.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "campaign_id",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "cycle",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "index",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "root_schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "String",
+      "type": "string",
+      "definitions": {
+        "CampaignView": {
+          "type": "object",
+          "required": [
+            "attestation_window_sec",
+            "contribution_window_sec",
+            "created_at",
+            "creator",
+            "current_cycle",
+            "id",
+            "milestones",
+            "quorum_bps",
+            "reference_url",
+            "summary",
+            "title",
+            "token",
+            "token_registered"
+          ],
+          "properties": {
+            "attestation_window_sec": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "contribution_window_sec": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "created_at": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "creator": {
+              "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+              "type": "string"
+            },
+            "current_cycle": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "id": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "milestones": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MilestoneSpec"
+              }
+            },
+            "quorum_bps": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0.0
+            },
+            "reference_url": {
+              "type": "string"
+            },
+            "summary": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "token": {
+              "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+              "type": "string"
+            },
+            "token_registered": {
+              "type": "boolean"
+            }
+          }
+        },
+        "CycleView": {
+          "type": "object",
+          "required": [
+            "campaign_id",
+            "can_finalize",
+            "contribution_deadline",
+            "cycle",
+            "finalized",
+            "locked",
+            "milestones",
+            "opens_at",
+            "released",
+            "supporter_count",
+            "total_deposited"
+          ],
+          "properties": {
+            "campaign_id": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "can_finalize": {
+              "type": "boolean"
+            },
+            "contribution_deadline": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "cycle": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "finalized": {
+              "type": "boolean"
+            },
+            "locked": {
+              "type": "string"
+            },
+            "milestones": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MilestoneStatus"
+              }
+            },
+            "opens_at": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "released": {
+              "type": "string"
+            },
+            "supporter_count": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "total_deposited": {
+              "type": "string"
+            }
+          }
+        },
+        "MilestoneSpec": {
+          "type": "object",
+          "required": [
+            "due_offset_sec",
+            "title",
+            "weight_bps"
+          ],
+          "properties": {
+            "due_offset_sec": {
+              "description": "Seconds after a cycle opens that delivery is due.",
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "title": {
+              "type": "string"
+            },
+            "weight_bps": {
+              "description": "Share of the cycle pool released when this milestone is attested, in basis points.",
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0.0
+            }
+          }
+        },
+        "MilestoneStatus": {
+          "type": "object",
+          "required": [
+            "attestation_deadline",
+            "attested_weight",
+            "due_at",
+            "expired",
+            "index",
+            "quorum_weight",
+            "released",
+            "title",
+            "tranche_amount",
+            "weight_bps",
+            "window_open"
+          ],
+          "properties": {
+            "attestation_deadline": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "attested_weight": {
+              "type": "string"
+            },
+            "due_at": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "expired": {
+              "type": "boolean"
+            },
+            "index": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "quorum_weight": {
+              "type": "string"
+            },
+            "released": {
+              "type": "boolean"
+            },
+            "title": {
+              "type": "string"
+            },
+            "tranche_amount": {
+              "type": "string"
+            },
+            "weight_bps": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0.0
+            },
+            "window_open": {
+              "type": "boolean"
+            }
+          }
+        },
+        "PromiseOrValueString": {
+          "type": "string"
+        },
+        "SupporterView": {
+          "type": "object",
+          "required": [
+            "attested_milestones",
+            "can_refund",
+            "cycle",
+            "deposited",
+            "refund_share",
+            "refunded",
+            "supporter"
+          ],
+          "properties": {
+            "attested_milestones": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            "can_refund": {
+              "type": "boolean"
+            },
+            "cycle": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "deposited": {
+              "type": "string"
+            },
+            "refund_share": {
+              "type": "string"
+            },
+            "refunded": {
+              "type": "boolean"
+            },
+            "supporter": {
+              "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
